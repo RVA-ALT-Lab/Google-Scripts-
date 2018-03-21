@@ -14,3 +14,23 @@ function plainText (){
   var range = sheet.getRange('f'+ lastRow +':g'+lastRow);
   range.setNumberFormat('@STRING@'); // found this format https://stackoverflow.com/questions/13758913/format-a-google-sheets-cell-in-plaintext-via-apps-script  
 }
+
+
+//make referencing ranges on other worksheets work again (unless I'm missing something)
+
+//=sheetRange("theworksheetname", "A3", "G55")
+
+function sheetRange(targetName, colStart, colEnd) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var asName = ss.getActiveSheet().getSheetName();
+  var tgSheet = ss.getSheetByName(targetName);
+  var range = tgSheet.getRange(colStart + ':' + colEnd);
+  var output;
+
+  if(targetName == asName) {
+    output = "Error: target sheet is active sheet !!";
+  } else {
+        output = range.getValues();
+  }
+  return output;
+}
