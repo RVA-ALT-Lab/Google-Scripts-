@@ -34,3 +34,60 @@ function sheetRange(targetName, colStart, colEnd) {
   }
   return output;
 }
+
+
+//YOUTUBE DATA GATHERING ***********************************************************
+function getVideos (){
+ var ss = SpreadsheetApp.getActiveSpreadsheet();
+ var sheet = ss.getSheetByName('videos'); //ASSUMES LIST OF VIDEO URLS ON A SHEET NAMED VIDEOS
+ var last = sheet.getLastRow();
+ var videos = sheet.getRange("A1:A"+last).getValues();
+  for (var i = 0; i < videos.length; i++){
+    var vidId = getVideoId(videos[i][0]);
+    getYTdata(vidId);
+  } 
+  
+}
+
+function getYTdata(vidId) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("data"); //ASSUMES WRITING DATA TO A SHEET NAMED DATA
+  var apiKey = '****************************YOUR API KEY HERE*********************************'; //ASSUMES YOU HAVE AN API KEY TO USE
+  var url = 'https://www.googleapis.com/youtube/v3/videos?id=' + vidId + '&key=' + apiKey + '&part=snippet,contentDetails,statistics,status'; 
+  
+  var currentTime = new Date();
+  
+  var response = UrlFetchApp.fetch(url); // get feed
+  var json = response.getContentText(); //
+  var data = JSON.parse(json);
+  var stats = [];
+  
+    stats.push(currentTime);
+    stats.push(data.items[0].snippet.title);
+    stats.push(data.items[0].statistics.viewCount);
+    stats.push(data.items[0].statistics.likeCount);
+    stats.push(data.items[0].statistics.dislikeCount);
+    stats.push(data.items[0].statistics.commentCount);
+    stats.push(data.items[0].snippet.publishedAt);
+    stats.push(data.items[0].snippet.thumbnails.high.url);
+    stats.push('https://www.youtube.com/watch?v=' + vidId);
+  sheet.appendRow(stats);
+  
+}
+
+function getVideoId(url){
+ var start = url.indexOf("?v=")+3;
+ var end = findEnd(url);
+  var id = url.substring(start,end);
+  return id;
+  
+}
+
+function findEnd(url){
+   var end = url.indexOf("&"); 
+   if (end > 0) {
+    return end;
+   } else {
+     return url.length;
+   }
+}
+  
