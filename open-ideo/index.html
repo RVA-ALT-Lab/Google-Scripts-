@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue"></script>
+
+  <style>
+  .card-deck img {
+    max-width: 300px;
+  }
+  </style>
+
+  </head>
+  <body>
+  <div class="container">
+  <div class="row">
+  <div class="col-lg-12" id="idea-app">
+  <h1>Open IDEO</h1>
+  <p>Welcome, {{user.name}}</p>
+  <p>Message: {{message}}</p>
+
+
+  <div v-if="!isAuthenticated">
+    <h2>Register</h2>
+    <label for="name">Name</label>
+    <input type="text" id="register-name" name="name" v-model='register.name'>
+    <label for="email">Email</label>
+    <input type="text" id="register-email" name="email" v-model='register.email'>
+    <div class="btn btn-primary" id="register-button">Register</div>
+    <br>
+    <h2>Already Registed, Login Here</h2>
+    <label for="login-name">Name</label>
+    <input type="text" id="login-name" name="login-name" v-model='login.name'>
+    <label for="login-email">Email</label>
+    <input type="text" id="login-email" name="login-email" v-model='login.email'>
+    <div class="btn btn-primary" id="login-button">Login</div>
+    <br>
+  </div>
+
+  <div class="authenticated" v-if="isAuthenticated">
+    <h2>Submit an Idea</h2>
+    <label for="idea-name">Idea Name</label>
+    <br>
+    <input type="text" id="idea-name" name="idea-name" v-model="idea.name">
+    <br>
+    <label for="idea-image">Image Link</label>
+    <br>
+    <input type="text" id="idea-image" name="idea-image" v-model="idea.image">
+    <br>
+    <label for="idea-description">Idea Description</label>
+    <br>
+    <textarea id="idea-description" name="idea-description" v-model="idea.description"></textarea>
+    <div class="btn btn-primary" id="idea-button" v-on:click="submitIdea">Submit Your Idea</div>
+
+  </div>
+
+  <h2>Ideas</h2>
+  <p>Login or register to vote. You can only vote once.</p>
+  <div class="ideas-container card-deck">
+     <div class="card" v-for="idea in ideas" v-if="ideas.length > 0">
+        <img class="card-img-top img-fluid" :src="idea.image">
+        <div class="card-block">
+         <div class="card-title">{{idea.name}}</div>
+         <p>{{idea.description}}</p>
+         <p>Submitted By: {{idea.email}}</p>
+         <p>Votes: {{idea.voteCount}}</p>
+         <div class="btn btn-primary" v-on:click="upvoteIdea(idea); idea.voteCount++;" v-if="isAuthenticated">Upvote This Idea</div>
+        </div>
+     </div>
+  </div>
+
+
+
+
+  </div>
+  </div>
+  </div>
+  <script type="text/javascript">
+
+
+  var app = new Vue({
+    el: '#idea-app',
+    data: {
+      isAuthenticated: false,
+      user : {
+         name: '',
+         email: ''
+      },
+      register: {
+         email: '',
+         name: '',
+      },
+      login: {
+        name: '',
+        email: ''
+      },
+      idea: {
+        name: '',
+        description: '',
+        image: '',
+      },
+      ideas: [],
+      message: '',
+
+    },
+    methods: {
+
+    submitIdea: function(){
+       var user = {
+        email: this.user.email,
+        name: this.user.name,
+       };
+
+       var idea = {
+         name: this.idea.name,
+         description: this.idea.description,
+         image: this.idea.image,
+      };
+
+      google.script.run.withSuccessHandler(onUserAuthentication).addIdea(user, idea);
+      google.script.run.withSuccessHandler(renderIdeas).getIdeas();
+
+    },
+    upvoteIdea: function(idea){
+      google.script.run.withSuccessHandler(renderIdeas).addVote(this.user, idea);
+      console.log(idea);
+    }
+
+    },
+    mounted: function(){
+
+    google.script.run.withSuccessHandler(renderIdeas).getIdeas();
+
+    }
+
+  });
+
+ document.querySelector('#register-button').addEventListener('click', function(){
+    var user = {
+      email: app.register.email,
+      name: app.register.name,
+    };
+
+    google.script.run.withSuccessHandler(onUserAuthentication).registerUser(user);
+
+  });
+
+   document.querySelector('#login-button').addEventListener('click', function(){
+    var user = {
+      email: app.login.email,
+      name: app.login.name,
+    };
+
+    google.script.run.withSuccessHandler(onUserAuthentication).loginUser(user);
+
+  });
+
+
+
+  function renderIdeas(response){
+    if (response.success && response.ideas){
+      app.ideas = response.ideas;
+    }
+    app.message = response.message;
+  }
+
+  function onUserAuthentication(response){
+
+    if(response.success) {
+      app.user = response.authUser;
+      app.isAuthenticated = true;
+    }
+    app.message = response.message;
+  }
+
+
+  </script>
+  </body>
+</html>
+
+
