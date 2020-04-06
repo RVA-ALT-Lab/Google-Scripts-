@@ -3,7 +3,7 @@
 //make folder named Last Name, First Name_Fulbright Folder
 //copy of 1B6kwEVqKUYosBNnCJeFYSF0WA3u7Juk5LWbP0FVMOjY
 //copy of 1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo named Last Name, First Name_Fulbright Drafts
-
+//og sheet https://docs.google.com/spreadsheets/d/1ucL-XPk6Cwj_Vq9Rp233ZWEypT00DJCj-qkIBa9N9gc/edit#gid=714134503
 
 function onFormSubmission(){
    var sheet = SpreadsheetApp.getActiveSheet();
@@ -38,6 +38,8 @@ function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow){
   draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor
   var draftDoc = DriveApp.getFileById('1B6kwEVqKUYosBNnCJeFYSF0WA3u7Juk5LWbP0FVMOjY');//copy 
   draftDoc.makeCopy(lastName +', '+ firstName +'_Fulbright Drafts', draftFolder);  
+  var url =  DriveApp.getFolderById(draftId).getUrl();
+  makeLink(url);
 }
 
 
@@ -46,3 +48,12 @@ function createFolderBasic(folderID, folderName) {
   var newFolder = folder.createFolder(folderName);
   return newFolder.getId();
 };
+
+function makeLink(url){
+   var sheet = SpreadsheetApp.getActiveSheet();
+   var rows = sheet.getDataRange();
+   var lastRow = rows.getLastRow();
+   var name = sheet.getRange('D'+lastRow).getValue();
+   var formula = '=HYPERLINK("' + url + '","' + name +'")'
+   sheet.getRange('D'+lastRow).setFormula(formula);
+}
