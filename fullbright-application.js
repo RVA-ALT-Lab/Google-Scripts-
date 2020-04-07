@@ -3,7 +3,7 @@
 //make folder named Last Name, First Name_Fulbright Folder
 //copy of 1B6kwEVqKUYosBNnCJeFYSF0WA3u7Juk5LWbP0FVMOjY
 //copy of 1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo named Last Name, First Name_Fulbright Drafts
-//og sheet https://docs.google.com/spreadsheets/d/1ucL-XPk6Cwj_Vq9Rp233ZWEypT00DJCj-qkIBa9N9gc/edit#gid=714134503
+
 
 function onFormSubmission(){
    var sheet = SpreadsheetApp.getActiveSheet();
@@ -29,14 +29,14 @@ function addStudentToResourceFolder(emailClean){
 
 function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow){
   var holderId = '1DOQ1xila6KmX6MsgIaIEQSfXYNapiW1u';//Applicant Folders - top level folder
-  var draftId = createFolderBasic(holderId, lastName+ ', ' + firstName +'_Fullbright Folder');//create folder
+  var draftId = createFolderBasic(holderId, lastName+ ', ' + firstName +'_Fulbright Folder');//create folder
   var draftFolder = DriveApp.getFolderById(draftId);//get folder
   var directions = DriveApp.getFileById('1B6kwEVqKUYosBNnCJeFYSF0WA3u7Juk5LWbP0FVMOjY');//copy 
   directions.makeCopy('Fulbright Essay Prompts and Instructions', draftFolder)
   
   draftFolder.setOwner('mrsisson@vcu.edu');
   draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor
-  var draftDoc = DriveApp.getFileById('1B6kwEVqKUYosBNnCJeFYSF0WA3u7Juk5LWbP0FVMOjY');//copy 
+  var draftDoc = DriveApp.getFileById('1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo');//copy 
   draftDoc.makeCopy(lastName +', '+ firstName +'_Fulbright Drafts', draftFolder);  
   var url =  DriveApp.getFolderById(draftId).getUrl();
   makeLink(url);
@@ -49,11 +49,12 @@ function createFolderBasic(folderID, folderName) {
   return newFolder.getId();
 };
 
+
 function makeLink(url){
    var sheet = SpreadsheetApp.getActiveSheet();
    var rows = sheet.getDataRange();
    var lastRow = rows.getLastRow();
-   var name = sheet.getRange('D'+lastRow).getValue();
+   var name = sheet.getRange('C'+lastRow).getValue();
    var formula = '=HYPERLINK("' + url + '","' + name +'")'
-   sheet.getRange('D'+lastRow).setFormula(formula);
+   sheet.getRange('C'+lastRow).setFormula(formula);
 }
