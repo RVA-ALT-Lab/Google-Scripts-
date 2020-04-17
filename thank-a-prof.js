@@ -54,8 +54,11 @@ function createDocument(facultyFirst, facultyLast, facultyEmail, studentMessage,
 
 function sendEmail(facultyFirst, facultyLast, facultyEmail, documentLink, documentId){
   //var file = DriveApp.getFileById(documentId);
-  var emailBody = '<p>Dear '+ facultyFirst + ' ' + facultyFirst+ ',</p><br><p>During this time of uncertainty we find it extremely important to share gratitude whenever we can. Attached, please '
- + '<a href="' + documentLink + '"> find a comment thanking you for your hard work, compassion, and efforts on behalf of our students.</a>.</p><br><p>Sincerely,<br>Kim Case and the CTLE</p>'
+  var emailBody = '<p>Dear '+ facultyFirst + ' ' + facultyLast+ ',</p><br><p>During this time of great uncertainty, we find it extremely important to share gratitude whenever we can.'+
+    'The Center for Teaching and Learning Excellence created the "Thank a Professor" initiative for students, alumni, VCU colleagues, or students\' family members to submit a message of gratitude. A message thanking you is shared with you below (<a href="' + documentLink + '">attached</a>).</p>'
+ + '<br>' +
+   '<p>In appreciation for all you do for our students,<br></p>' +
+    '<p>Kim A. Case, Ph.D.<br><strong>Director of Faculty Success</strong><br><a href="https://provost.vcu.edu/">Office of the Provost</a><br><a href="https://ctle.vcu.edu/">Center for Teaching and Learning Excellence</a><br><a href="https://gsws.vcu.edu/">Professor of Gender, Sexuality, and Women\'s Studies</a><br>Affiliate Professor of Psychology<br>Virginia Commonwealth University</p>';
   MailApp.sendEmail({
     to: facultyEmail,
     subject: 'Thank a Professor',
