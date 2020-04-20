@@ -5,12 +5,13 @@ function getSourceData(){
   var values = sheet.getDataRange().getValues();
   var okToSend = false;
  
-
+  var limiter = 0;
   values.forEach(function(value, index) {
     var vetted = value[0];//vetted
     var sent = value[1];//sent
     Logger.log('index count='+index);
-    if (vetted == 'x' && sent != 'sent') {
+   
+    if (vetted == 'x' && sent == '' && limiter < 11) {
       var studentMessage = value[3];
       var studentName = value[8];
       if(studentName === "ANONYMOUS"){
@@ -19,11 +20,12 @@ function getSourceData(){
             
       var facultyFirst = value[4];
       var facultyLast = value[5];
-      var facultyEmail = value[6];
+      var facultyEmail = value[6].replace(' ', '');
       
      Logger.log('send ' + studentMessage);
        createDocument(facultyFirst, facultyLast, facultyEmail, studentMessage, studentName)
        sheet.getRange('B'+(index+1)).setValue('sent')
+       limiter = limiter+1;
     }
     
   })
@@ -42,8 +44,9 @@ function createDocument(facultyFirst, facultyLast, facultyEmail, studentMessage,
   body.replaceText("<<faculty_last>>", facultyLast);
   body.replaceText("<<message>>", studentMessage);  
   body.replaceText("<<student_name>>", studentName);
-  DocumentApp.openById(newId).addViewer(facultyEmail); 
-  
+//  DocumentApp.openById(newId).addViewer(facultyEmail); 
+    DriveApp.getFileById(newId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
   var emailBody = body;
   Logger.log(emailBody);
   
