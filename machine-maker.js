@@ -13,7 +13,8 @@ function makeMachineSheet() {
   var machineSheet = ss.insertSheet('Machine Maker');
   machineSheet.getRange('A1').setValue('What is the ID of the folder that will hold all applications? 👉').setBackground("#efefef")
   machineSheet.getRange('A2').setValue('What is the ID of the folder you want to give view access to? 👉').setBackground("#efefef")
-  machineSheet.getRange('A3').setValue('List the files (use the file ID) to copy to the lastname, firstname_topfoldername folder. 👇').setBackground("#efefef")
+  machineSheet.getRange('A3').setValue('What is the scholarship name? 👉').setBackground("#efefef")
+  machineSheet.getRange('A4').setValue('List the files (use the file ID) to copy to the lastname, firstname_topfoldername folder. 👇').setBackground("#efefef")
   
   machineSheet.setColumnWidth(1, 450);
   machineSheet.setColumnWidth(2, 300);
@@ -31,11 +32,10 @@ function FormSubmissionActions(){
   //get data from machine maker sheet
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var machineSheet = ss.getSheetByName('Machine Maker')
-  var conentDestinationID = machineSheet.getRange("B1").getValue();//the folder ID where we save the new content
+  var contentDestinationID = machineSheet.getRange("B1").getValue();//the folder ID where we save the new content
   var viewThisFolderID = machineSheet.getRange("B2").getValue();//the folder ID where we are giving view access 
-  Logger.log(conentDestinationID);
-  Logger.log(viewThisFolderID);
-   
+  var scholarshipName = machineSheet.getRange("B3").getValue();//the scholarship name
+  
    var formSheet = ss.getSheetByName('Form Responses 1');
    var rows = formSheet.getDataRange();
    var lastRow = rows.getLastRow();  
@@ -47,7 +47,7 @@ function FormSubmissionActions(){
    var cleanEmail = email.substring(0,atSymbol);
  
    addStudentToResourceFolder(cleanEmail, viewThisFolderID);
-   makeStudentFolder(cleanEmail, lastName, firstName, formSheet, lastRow, conentDestinationID);
+   makeStudentFolder(cleanEmail, lastName, firstName, formSheet, lastRow, contentDestinationID, scholarshipName);
   
 
 }
@@ -61,14 +61,15 @@ function addStudentToResourceFolder(emailClean, id){
   folder.addViewers([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student email versions as viewer
 }
 
-function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow, holderId){
-  var draftId = createFolderBasic(holderId, lastName+ ', ' + firstName +'_Fulbright Folder');//create folder
+function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow, holderId, scholarshipName){
+  var draftId = createFolderBasic(holderId, lastName+ ', ' + firstName +'_' + scholarshipName + ' Folder');//create folder
   var draftFolder = DriveApp.getFolderById(draftId);//get folder
   
   draftFolder.setOwner('mrsisson@vcu.edu');
   draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor
-  var draftDoc = DriveApp.getFileById('1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo');//copy 
-  draftDoc.makeCopy(lastName +', '+ firstName +'_Fulbright Drafts', draftFolder);  
+  //var draftDoc = DriveApp.getFileById('1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo');//copy 
+  //draftDoc.makeCopy(lastName +', '+ firstName +'_'+ scholarshipName  + ' Drafts', draftFolder);  
+  copyAllThings(lastName, firstName, draftFolder);
   var url =  DriveApp.getFolderById(draftId).getUrl();
   makeLink(url);
 }
@@ -88,4 +89,21 @@ function makeLink(url){
    var name = sheet.getRange('C'+lastRow).getValue();
    var formula = '=HYPERLINK("' + url + '","' + name +'")'
    sheet.getRange('D'+lastRow).setFormula(formula);
+}
+
+
+function copyAllThings(lastName, firstName, draftFolder){
+   var sheet =  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Machine Maker');
+   var rows = sheet.getDataRange();
+   var lastRow = rows.getLastRow();
+   var range = sheet.getRange('A5:A'+lastRow);
+   Logger.log(range.getValues());
+   Logger.log(range.getValues().length)
+   for (var i = 0; i < range.getValues().length; i++) {
+    var fileId = range.getValues()[i]; 
+    var draftDoc = DriveApp.getFileById(fileId);//copy 
+    var fileName = draftDoc.getName();
+    draftDoc.makeCopy(lastName +', '+ firstName +'_'+ fileName  + ' Drafts', draftFolder);
+   }
+
 }
