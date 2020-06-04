@@ -16,7 +16,7 @@ function makeMachineSheet() {
   machineSheet.getRange('A3').setValue('What is the scholarship name? 👉').setBackground("#efefef")
   machineSheet.getRange('A4').setValue('List the files (use the file ID) to copy to the lastname, firstname_topfoldername folder. 👇').setBackground("#efefef")
   
-  machineSheet.setColumnWidth(1, 450);
+  machineSheet.setColumnWidth(1, 500);
   machineSheet.setColumnWidth(2, 300);
   
 //  var rights = SpreadsheetApp.newDataValidation().requireValueInList(['edit','view']);
@@ -53,8 +53,6 @@ function FormSubmissionActions(){
 }
 
 
-//folder id = 1UK658kWUOjdfSAYdqf86u5RmfrLUQ_3F name is test scholarship
-
 
 function addStudentToResourceFolder(emailClean, id){
   var folder = DriveApp.getFolderById(id);
@@ -67,8 +65,6 @@ function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow, hold
   
   draftFolder.setOwner('mrsisson@vcu.edu');
   draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor
-  //var draftDoc = DriveApp.getFileById('1NqOqfEmNTLKbkl9yOpdaVuVuLXfMQPzbg7O62kRiTqo');//copy 
-  //draftDoc.makeCopy(lastName +', '+ firstName +'_'+ scholarshipName  + ' Drafts', draftFolder);  
   copyAllThings(lastName, firstName, draftFolder);
   var url =  DriveApp.getFolderById(draftId).getUrl();
   makeLink(url);
