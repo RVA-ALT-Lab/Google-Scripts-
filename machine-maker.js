@@ -16,7 +16,7 @@ function makeMachineSheet() {
   machineSheet.getRange('A3').setValue('What is the scholarship name? 👉').setBackground("#efefef")
   machineSheet.getRange('A4').setValue('List the files (use the file ID) to copy to the lastname, firstname_topfoldername folder. 👇').setBackground("#efefef")
   
-  machineSheet.setColumnWidth(1, 500);
+  machineSheet.setColumnWidth(1, 470);
   machineSheet.setColumnWidth(2, 300);
   
 //  var rights = SpreadsheetApp.newDataValidation().requireValueInList(['edit','view']);
@@ -43,28 +43,38 @@ function FormSubmissionActions(){
    var firstName = formSheet.getRange(lastRow,3).getValue();
    var lastName = formSheet.getRange(lastRow,4).getValue();
  
-   var atSymbol = email.search('@');
-   var cleanEmail = email.substring(0,atSymbol);
- 
-   addStudentToResourceFolder(cleanEmail, viewThisFolderID);
-   makeStudentFolder(cleanEmail, lastName, firstName, formSheet, lastRow, contentDestinationID, scholarshipName);
+   addStudentToResourceFolder(email, viewThisFolderID);
+   makeStudentFolder(email, lastName, firstName, formSheet, lastRow, contentDestinationID, scholarshipName);
   
 
 }
 
 
-
-function addStudentToResourceFolder(emailClean, id){
+function addStudentToResourceFolder(email, id){
   var folder = DriveApp.getFolderById(id);
-  folder.addViewers([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student email versions as viewer
+  if (email.search('vcu.edu')){
+    var atSymbol = email.search('@');
+    var cleanEmail = email.substring(0,atSymbol);
+    folder.addViewers([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student email versions as viewer
+  }
+  else {
+    folder.addViewers(email);
+  }
 }
 
-function makeStudentFolder(emailClean, lastName, firstName, sheet, lastRow, holderId, scholarshipName){
+function makeStudentFolder(email, lastName, firstName, sheet, lastRow, holderId, scholarshipName){
+  Logger.log(holderId)
   var draftId = createFolderBasic(holderId, lastName+ ', ' + firstName +'_' + scholarshipName + ' Folder');//create folder
   var draftFolder = DriveApp.getFolderById(draftId);//get folder
   
   draftFolder.setOwner('mrsisson@vcu.edu');
-  draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor
+   if (email.search('vcu.edu')){
+    var atSymbol = email.search('@');
+    var cleanEmail = email.substring(0,atSymbol);
+     draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor 
+   } else {
+          draftFolder.addEditors([email]);//add student as editor 
+   }
   copyAllThings(lastName, firstName, draftFolder);
   var url =  DriveApp.getFolderById(draftId).getUrl();
   makeLink(url);
@@ -82,7 +92,7 @@ function makeLink(url){
    var sheet =  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form Responses 1');
    var rows = sheet.getDataRange();
    var lastRow = rows.getLastRow();
-   var name = sheet.getRange('C'+lastRow).getValue();
+   var name = sheet.getRange('D'+lastRow).getValue();
    var formula = '=HYPERLINK("' + url + '","' + name +'")'
    sheet.getRange('D'+lastRow).setFormula(formula);
 }
