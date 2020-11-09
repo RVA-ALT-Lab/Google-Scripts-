@@ -55,7 +55,7 @@ function addStudentToResourceFolder(email, id){
   if (email.search('vcu.edu')){
     var atSymbol = email.search('@');
     var cleanEmail = email.substring(0,atSymbol);
-    folder.addViewers([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student email versions as viewer
+    folder.addViewers([cleanEmail + '@vcu.edu', cleanEmail + '@mymail.vcu.edu']);//add student email versions as viewer
   }
   else {
     folder.addViewers(email);
@@ -71,7 +71,7 @@ function makeStudentFolder(email, lastName, firstName, sheet, lastRow, holderId,
    if (email.search('vcu.edu')){
     var atSymbol = email.search('@');
     var cleanEmail = email.substring(0,atSymbol);
-     draftFolder.addEditors([emailClean + '@vcu.edu', emailClean + '@mymail.vcu.edu']);//add student as editor 
+     draftFolder.addEditors([cleanEmail + '@vcu.edu', cleanEmail + '@mymail.vcu.edu']);//add student as editor 
    } else {
           draftFolder.addEditors([email]);//add student as editor 
    }
